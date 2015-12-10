@@ -77,11 +77,21 @@
 
               // the element which is clicked.
               var eventElm = angular.element(e.target),
-                cloneElm = element.clone(),
-                eventElmTagName, tagName,
+                isHandleChild, cloneElm, eventElmTagName, tagName,
                 eventObj, tdElm, hStyle,
-                isTreeNode = UiTreeHelper.elementIsTreeNode(eventElm),
-                isTreeNodeHandle = UiTreeHelper.elementIsTreeNodeHandle(eventElm);
+                isTreeNode,
+                isTreeNodeHandle;
+
+              // if the target element is a child element of a ui-tree-handle,
+              // use the containing handle element as target element
+              isHandleChild = UiTreeHelper.treeNodeHandlerContainerOfElement(eventElm);
+              if (isHandleChild) {
+                eventElm = angular.element(isHandleChild);
+              }
+
+              cloneElm = element.clone();
+              isTreeNode = UiTreeHelper.elementIsTreeNode(eventElm);
+              isTreeNodeHandle = UiTreeHelper.elementIsTreeNodeHandle(eventElm);
 
               if (!isTreeNode && !isTreeNodeHandle) {
                 return;
