@@ -456,7 +456,7 @@
             // and the 'max-depth' attribute in `ui-tree` or `ui-tree-nodes`.
             // the method can be overrided
             callbacks.accept = function (sourceNodeScope, destNodesScope, destIndex) {
-              return !(destNodesScope.nodropEnabled || destNodesScope.outOfDepth(sourceNodeScope));
+              return !(destNodesScope.nodropEnabled || destNodesScope.$treeScope.nodropEnabled || destNodesScope.outOfDepth(sourceNodeScope));
             };
 
             callbacks.beforeDrag = function (sourceNodeScope) {
@@ -875,7 +875,7 @@
                 }
 
                 // move vertical
-                if (!pos.dirAx) {
+                if (!pos.dirAx || pos.dirAx) { //added pos.dirAx to account for horizontal movement
                   // check it's new position
                   targetNode = targetElm.scope();
                   isEmpty = false;
@@ -896,9 +896,16 @@
                     targetNode = targetNode.$nodeScope;
                   }
 
-                  if (targetNode.$type != 'uiTreeNode'
+                  if (targetNode.$type != 'uiTreeNode' //my addition
                     && !isEmpty) { // Check if it is a uiTreeNode or it's an empty tree
-                    return;
+                    if (!isEmpty && targetNode.$type == 'uiTreeNodes' && targetNode.dragEnabled && targetElm.attr('class') != 'angular-ui-tree-placeholder') {
+                      if (targetNode.$nodesScope.accept(scope, 0)) {
+                        targetNode.place(placeElm);
+                        dragInfo.moveTo(targetNode.$nodesScope, targetNode.$nodesScope.childNodes(), targetNode.$nodesScope.childNodes().length); //insert at end of node array
+                      }
+                    } else {
+                      return;
+                    }
                   }
 
                   // if placeholder move from empty tree, reset it.
@@ -913,13 +920,13 @@
                       targetNode.place(placeElm);
                       dragInfo.moveTo(targetNode.$nodesScope, targetNode.$nodesScope.childNodes(), 0);
                     }
-                  } else if (targetNode.dragEnabled()) { // drag enabled
+                  } else if (targetNode.dragEnabled || targetNode.dragEnabled()) { // drag enabled
                     targetElm = targetNode.$element; // Get the element of ui-tree-node
                     targetOffset = UiTreeHelper.offset(targetElm);
                     targetBefore = targetNode.horizontal ? eventObj.pageX < (targetOffset.left + UiTreeHelper.width(targetElm) / 2)
                       : eventObj.pageY < (targetOffset.top + UiTreeHelper.height(targetElm) / 2);
 
-                    if (targetNode.$parentNodesScope.accept(scope, targetNode.index())) {
+                    if (targetNode.$parentNodesScope && targetNode.$parentNodesScope.accept(scope, targetNode.index())) {
                       if (targetBefore) {
                         targetElm[0].parentNode.insertBefore(placeElm[0], targetElm[0]);
                         dragInfo.moveTo(targetNode.$parentNodesScope, targetNode.siblings(), targetNode.index());
@@ -927,7 +934,7 @@
                         targetElm.after(placeElm);
                         dragInfo.moveTo(targetNode.$parentNodesScope, targetNode.siblings(), targetNode.index() + 1);
                       }
-                    } else if (!targetBefore && targetNode.accept(scope, targetNode.childNodesCount())) { // we have to check if it can add the dragging node as a child
+                    } else if (!targetBefore && targetNode.childNodesCount && targetNode.accept(scope, targetNode.childNodesCount())) { // we have to check if it can add the dragging node as a child
                       targetNode.$childNodesScope.$element.append(placeElm);
                       dragInfo.moveTo(targetNode.$childNodesScope, targetNode.childNodes(), targetNode.childNodesCount());
                     } else {
@@ -1092,7 +1099,9 @@
               };
             }
 
-            scope.$watch(attrs.maxDepth, function (val) {
+            scope.$watch(function () {
+              return attrs.maxDepth;
+            }, function (val) {
               if ((typeof val) == 'number') {
                 scope.maxDepth = val;
               }
@@ -1287,7 +1296,7 @@
 
                 // cloneEnabled and cross-tree so copy and do not remove from source
                 if (this.isClone() && this.isForeign()) {
-                  this.parent.insertNode(this.index, angular.copy(nodeData));
+                  this.parent.insertNode(this.index, this.sourceInfo.cloneModel);
                 } else { // Any other case, remove and reinsert
                   this.source.remove();
                   this.parent.insertNode(this.index, nodeData);
