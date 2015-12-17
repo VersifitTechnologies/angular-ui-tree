@@ -1,3 +1,7 @@
+#2.11.1
+
+* Added some code to allow the tree's drop area to take up the whole div that it's placed in.
+
 # 2.11.0
 
 * Reset placeholder display attribute instead of changing it to block [#631](https://github.com/angular-ui-tree/angular-ui-tree/issues/631)
