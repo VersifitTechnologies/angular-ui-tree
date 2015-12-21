@@ -1,3 +1,7 @@
+#2.11.3
+
+* Fixed some errors with the dragmove logic
+
 # 2.11.2
 
 * Fixed an issue with the extended drop area.
