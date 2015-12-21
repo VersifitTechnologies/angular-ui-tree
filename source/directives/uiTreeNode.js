@@ -398,9 +398,12 @@
                         targetElm.after(placeElm);
                         dragInfo.moveTo(targetNode.$parentNodesScope, targetNode.siblings(), targetNode.index() + 1);
                       }
-                    } else if (!targetBefore && targetNode.childNodesCount && targetNode.accept(scope, targetNode.childNodesCount())) { // we have to check if it can add the dragging node as a child
+                    } else if (!targetBefore && targetNode.childNodes && targetNode.accept(scope, targetNode.childNodes().length)) { // we have to check if it can add the dragging node as a child
                       targetNode.$childNodesScope.$element.append(placeElm);
                       dragInfo.moveTo(targetNode.$childNodesScope, targetNode.childNodes(), targetNode.childNodesCount());
+                    } else if (targetNode.childNodes() && targetNode.$nodesScope.accept(scope, targetNode.childNodes().length)) {
+                      targetNode.place(placeElm);
+                      dragInfo.moveTo(targetNode.$nodesScope, targetNode.$nodesScope.childNodes(), targetNode.childNodes().length);
                     } else {
                       outOfBounds = true;
                     }
