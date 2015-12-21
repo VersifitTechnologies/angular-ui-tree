@@ -1,3 +1,7 @@
+#2.11.4
+
+* Added build files
+
 #2.11.3
 
 * Fixed some errors with the dragmove logic
