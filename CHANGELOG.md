@@ -1,6 +1,10 @@
+# 2.11.2
+
+* Fixed an issue with the extended drop area.
+
 # 2.11.1
 
-* Extended the drop area of trees to cover the element they're in 
+* Extended the drop area of trees to cover the element they're in
 
 # 2.11.0
 
